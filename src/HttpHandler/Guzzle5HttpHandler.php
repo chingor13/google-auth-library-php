@@ -17,11 +17,13 @@
 namespace Google\Auth\HttpHandler;
 
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Message\ResponseInterface as Guzzle5ResponseInterface;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Psr7\Response;
+use OpenCensus\Trace\Integrations\Guzzle\EventSubscriber;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -35,9 +37,9 @@ class Guzzle5HttpHandler
     /**
      * @param ClientInterface $client
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(ClientInterface $client = null)
     {
-        $this->client = $client;
+        $this->client = $client ?: $this->defaultClient();
     }
 
     /**
@@ -124,5 +126,12 @@ class Guzzle5HttpHandler
             $response->getProtocolVersion(),
             $response->getReasonPhrase()
         );
+    }
+
+    private function defaultClient()
+    {
+        $client = new Client();
+        $client->getEmitter()->attach(new EventSubscriber());
+        return $client;
     }
 }

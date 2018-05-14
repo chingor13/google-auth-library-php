@@ -33,7 +33,6 @@ class HttpHandlerFactory
     public static function build(ClientInterface $client = null)
     {
         $version = ClientInterface::VERSION;
-        $client = $client ?: new Client();
 
         switch ($version[0]) {
             case '5':

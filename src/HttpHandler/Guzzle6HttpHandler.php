@@ -2,7 +2,10 @@
 
 namespace Google\Auth\HttpHandler;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\HandlerStack;
+use OpenCensus\Trace\Integrations\Guzzle\Middleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -16,9 +19,9 @@ class Guzzle6HttpHandler
     /**
      * @param ClientInterface $client
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(ClientInterface $client = null)
     {
-        $this->client = $client;
+        $this->client = $client ?: $this->defaultClient();
     }
 
     /**
@@ -45,5 +48,13 @@ class Guzzle6HttpHandler
     public function async(RequestInterface $request, array $options = [])
     {
         return $this->client->sendAsync($request, $options);
+    }
+
+    private function defaultClient()
+    {
+        $stack = new HandlerStack();
+        $stack->setHandler(\GuzzleHttp\choose_handler());
+        $stack->push(new Middleware());
+        return new Client(['handler' => $stack]);
     }
 }
