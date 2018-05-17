@@ -16,7 +16,6 @@
  */
 namespace Google\Auth\HttpHandler;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 
 class HttpHandlerFactory
